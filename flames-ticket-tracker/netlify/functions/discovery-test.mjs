@@ -1,7 +1,7 @@
 const BASE =
   'https://bookings.guildfordspectrum.co.uk/guildfordspectrum/api/v3';
 
-const EVENT_ID = '29001';
+const EVENT_ID = '29001ALLPBTHVNSHLVJMKCMRSHGJJGQBT';
 
 const headers = {
   'content-type': 'application/json; charset=utf-8',
@@ -10,15 +10,11 @@ const headers = {
 
 export default async () => {
   try {
-
-    // Retrieve the event's performances from Spektrix
-    const url =
-      `${BASE}/events/${EVENT_ID}/instances`;
+    const url = `${BASE}/events/${EVENT_ID}/instances`;
 
     const response = await fetch(url, {
       headers: {
-        Accept: 'application/json',
-        'User-Agent': 'Mozilla/5.0'
+        Accept: 'application/json'
       },
       signal: AbortSignal.timeout(10000)
     });
@@ -31,18 +27,14 @@ export default async () => {
           success: false,
           status: response.status,
           eventId: EVENT_ID,
-          error: raw.slice(0, 300)
+          error: raw.slice(0, 500)
         }, null, 2),
-        {
-          status: 200,
-          headers
-        }
+        { headers }
       );
     }
 
     const data = JSON.parse(raw);
 
-    // Extract performance information
     const instances = Array.isArray(data)
       ? data.map(instance => ({
           id: instance.id,
@@ -55,7 +47,6 @@ export default async () => {
         }))
       : [];
 
-    // Check whether the full instance ID is available
     const fullInstanceIds = instances
       .map(instance => instance.id)
       .filter(id =>
@@ -72,14 +63,10 @@ export default async () => {
         fullInstanceIds,
         instances
       }, null, 2),
-      {
-        status: 200,
-        headers
-      }
+      { headers }
     );
 
   } catch (error) {
-
     return new Response(
       JSON.stringify({
         success: false,
@@ -90,7 +77,6 @@ export default async () => {
         headers
       }
     );
-
   }
 };
 
