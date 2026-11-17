@@ -1,5 +1,6 @@
 const BASE = 'https://bookings.guildfordspectrum.co.uk';
-const EVENT_ID = '29001';
+
+const INSTANCE_ID = '877601';
 
 const headers = {
   'content-type': 'application/json; charset=utf-8',
@@ -8,8 +9,9 @@ const headers = {
 
 export default async () => {
   try {
+
     const url =
-      `${BASE}/guildfordspectrum/website/EventDetails.aspx?EventId=${EVENT_ID}&resize=true`;
+      `${BASE}/guildfordspectrum/website/ChooseSeats.aspx?EventInstanceId=${INSTANCE_ID}&resize=true`;
 
     const response = await fetch(url, {
       headers: {
@@ -21,59 +23,53 @@ export default async () => {
 
     const html = await response.text();
 
-    // Find form opening tags
-    const forms = [
-      ...html.matchAll(/<form\b[^>]*>/gi)
-    ].map(match => match[0]);
-
-    // Find input fields
-    const inputs = [
-      ...html.matchAll(/<input\b[^>]*>/gi)
-    ].map(match => match[0]).slice(0, 30);
-
-    // Find booking button HTML and surrounding code
-    const buttonPosition = html.indexOf('BookNowButton');
-
-    const buttonContext = buttonPosition >= 0
-      ? html.slice(
-          Math.max(0, buttonPosition - 1000),
-          Math.min(html.length, buttonPosition + 1500)
-        )
-      : null;
-
-    // Find JavaScript postback references
-    const postbacks = [
+    // Find the full Spektrix instance ID
+    const fullInstanceIds = [
       ...new Set(
-        [...html.matchAll(/__doPostBack\([^)]*\)/gi)]
-          .map(match => match[0])
+        [...html.matchAll(/instanceId\s*:\s*["']([A-Z0-9]+)["']/gi)]
+          .map(match => match[1])
       )
-    ].slice(0, 20);
+    ];
 
-    // Find event and instance references
-    const references = [
+    // Find event names
+    const eventNames = [
       ...new Set(
-        [...html.matchAll(
-          /(?:EventInstanceId|ChooseSeats|BookNowButton|__EVENTTARGET)[^"'<>]{0,150}/gi
-        )].map(match => match[0])
+        [...html.matchAll(/eventName\s*:\s*["']([^"']+)["']/gi)]
+          .map(match => match[1])
       )
-    ].slice(0, 30);
+    ];
 
+    // Find match dates
+    const matchDates = [
+      ...new Set(
+        [...html.matchAll(/instanceDateTimeIso\s*:\s*["']([^"']+)["']/gi)]
+          .map(match => match[1])
+      )
+    ];
+
+    // Find seat map references
+    const seatMapFound = html.includes('initSeatMap');
+
+    // Return results
     return new Response(
       JSON.stringify({
         success: response.ok,
         status: response.status,
-        eventId: EVENT_ID,
+        numericInstanceId: INSTANCE_ID,
         htmlLength: html.length,
-        forms,
-        inputs,
-        buttonContext,
-        postbacks,
-        references
+        fullInstanceIds,
+        eventNames,
+        matchDates,
+        seatMapFound
       }, null, 2),
-      { headers }
+      {
+        status: 200,
+        headers
+      }
     );
 
   } catch (error) {
+
     return new Response(
       JSON.stringify({
         success: false,
@@ -84,6 +80,7 @@ export default async () => {
         headers
       }
     );
+
   }
 };
 
