@@ -1,0 +1,4 @@
+[build]
+  base = "flames-ticket-tracker"
+  publish = "."
+  functions = "netlify/functions"
