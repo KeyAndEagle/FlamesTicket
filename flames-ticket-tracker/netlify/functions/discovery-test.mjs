@@ -1,4 +1,4 @@
-const URL = 'https://www.guildfordspectrum.co.uk/ice-hockey-events/';
+const URL = 'https://bookings.guildfordspectrum.co.uk/guildfordspectrum/website/EventList.aspx?All=true&Attribute_Genre=Ice%20Hockey&SortBy=date&Stylesheet=spektrix.css&resize=true';
 
 const headers = {
   'content-type': 'application/json; charset=utf-8',
