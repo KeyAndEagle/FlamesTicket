@@ -1,5 +1,9 @@
-const URL =
-  'https://www.guildfordspectrum.co.uk/ice-hockey-events/';
+const URL = 'https://www.guildfordspectrum.co.uk/ice-hockey-events/';
+
+const headers = {
+  'content-type': 'application/json; charset=utf-8',
+  'cache-control': 'no-store'
+};
 
 export default async () => {
   try {
@@ -13,12 +17,32 @@ export default async () => {
 
     const html = await response.text();
 
+    // Find Spektrix Event IDs
     const eventIds = [
       ...new Set(
-        [...html.matchAll(/EventId=(\d+)/gi)]
+        [...html.matchAll(/EventId(?:=|%3D|&#61;)(\d+)/gi)]
           .map(match => match[1])
       )
     ];
+
+    // Find booking-related links
+    const bookingLinks = [
+      ...new Set(
+        [...html.matchAll(
+          /(?:href|src)=["']([^"']*(?:spektrix|bookings\.guildfordspectrum|EventDetails|ice-hockey)[^"']*)["']/gi
+        )].map(match => match[1])
+      )
+    ].slice(0, 30);
+
+    // Find mentions of Spektrix in the HTML
+    const spektrixMentions = [
+      ...html.matchAll(/spektrix/gi)
+    ].length;
+
+    // Find mentions of booking-related terms
+    const bookingMentions = [
+      ...html.matchAll(/booking/gi)
+    ].length;
 
     return new Response(
       JSON.stringify({
@@ -26,12 +50,14 @@ export default async () => {
         status: response.status,
         htmlLength: html.length,
         eventIds,
+        bookingLinks,
+        spektrixMentions,
+        bookingMentions,
         sample: html.slice(0, 300)
-      }),
+      }, null, 2),
       {
-        headers: {
-          'content-type': 'application/json'
-        }
+        status: 200,
+        headers
       }
     );
 
@@ -43,9 +69,7 @@ export default async () => {
       }),
       {
         status: 500,
-        headers: {
-          'content-type': 'application/json'
-        }
+        headers
       }
     );
   }
