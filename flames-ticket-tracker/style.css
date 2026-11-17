@@ -1,1 +1,337 @@
-:root{font-family:Inter,system-ui,-apple-system,sans-serif;color:#f7f8fc;background:#090d1c}*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(115deg,#141c38,#10162c 65%,#62220e);border-bottom:3px solid #ef5a23;padding:40px 0}.wrap{width:min(1100px,calc(100% - 36px));margin:auto}.eyebrow{color:#ff945d;font-size:12px;letter-spacing:2px;font-weight:800}h1{font-size:clamp(36px,6vw,58px);margin:8px 0}header p{color:#c9d0e4}h2{margin-bottom:5px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0}.stats article,.card{background:#161e35;border:1px solid #2d3651;border-radius:15px;padding:22px}.stats span{display:block;color:#b7c0d8;font-size:13px}.stats strong{display:block;font-size:38px;margin-top:9px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:35px}.toolbar p,.muted,.foot{color:#aeb8cf}button,.link{background:#f05a22;color:white;border:0;border-radius:9px;padding:12px 18px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}button:hover,.link:hover{background:#ff743d}.notice{background:#332818;border:1px solid #8c622b;color:#ffe0a4;padding:16px;border-radius:10px;line-height:1.5}.games{display:grid;gap:14px;margin:22px 0}.card{display:flex;align-items:center;justify-content:space-between;gap:18px}.card h3{margin:4px 0 8px;font-size:22px}.card p{margin:0;color:#b7c0d8}.count{font-size:30px;font-weight:900;text-align:right}.pill{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:800;background:#293550;color:#d5e3ff}.pill.ok{background:#123f32;color:#83f4bb}.pill.warn{background:#49321b;color:#ffcc7a}.pill.sold{background:#51232a;color:#ff9aa8}.right{text-align:right}.right small{display:block;color:#aeb8cf;margin:5px 0 12px}.foot{font-size:13px;margin:30px 0 60px}@media(max-width:680px){.stats{grid-template-columns:1fr}.card{display:block}.right{text-align:left;margin-top:16px}.count{text-align:left}.toolbar{align-items:flex-start;flex-direction:column}}
+/* ==========================================
+   GUILDFORD FLAMES TICKET TRACKER
+   VERSION 3
+   ========================================== */
+
+:root {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  color: #f7f8fc;
+  background: #090d1c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+header {
+  background: linear-gradient(
+    115deg,
+    #141c38,
+    #10162c 65%,
+    #62220e
+  );
+
+  border-bottom: 3px solid #ef5a23;
+  padding: 40px 0;
+}
+
+.wrap {
+  width: min(1100px, calc(100% - 36px));
+  margin: auto;
+}
+
+.eyebrow {
+  color: #ff945d;
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+h1 {
+  font-size: clamp(36px, 6vw, 58px);
+  margin: 8px 0;
+}
+
+header p {
+  color: #c9d0e4;
+}
+
+/* ==========================================
+   DASHBOARD STATISTICS
+   ========================================== */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 26px 0;
+}
+
+.stats article,
+.card {
+  background: #161e35;
+  border: 1px solid #2d3651;
+  border-radius: 15px;
+  padding: 22px;
+}
+
+.stats article {
+  transition: border-color 0.2s ease;
+}
+
+.stats article:hover {
+  border-color: #ef5a23;
+}
+
+.stats span {
+  display: block;
+  color: #b7c0d8;
+  font-size: 13px;
+}
+
+.stats strong {
+  display: block;
+  font-size: 38px;
+  margin-top: 9px;
+}
+
+/* ==========================================
+   TOOLBAR
+   ========================================== */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 35px;
+}
+
+h2 {
+  margin-bottom: 5px;
+}
+
+.toolbar p,
+.muted,
+.foot {
+  color: #aeb8cf;
+}
+
+/* ==========================================
+   BUTTONS
+   ========================================== */
+
+button,
+.link {
+  background: #f05a22;
+  color: white;
+  border: 0;
+  border-radius: 9px;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+button:hover,
+.link:hover {
+  background: #ff743d;
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ==========================================
+   AUTOMATIC TRACKING NOTICE
+   ========================================== */
+
+.notice {
+  background: #132b29;
+  border: 1px solid #286e59;
+  color: #a8f5d0;
+
+  padding: 16px 20px;
+  border-radius: 10px;
+  line-height: 1.6;
+
+  margin-top: 22px;
+}
+
+.notice b {
+  color: #d2ffe9;
+}
+
+/* ==========================================
+   FIXTURE LIST
+   ========================================== */
+
+.games {
+  display: grid;
+  gap: 14px;
+  margin: 22px 0;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.card:hover {
+  border-color: #ef5a23;
+  background: #1a2440;
+  transform: translateY(-2px);
+}
+
+.card h3 {
+  margin: 4px 0 8px;
+  font-size: 22px;
+}
+
+.card p {
+  margin: 0;
+  color: #b7c0d8;
+}
+
+/* ==========================================
+   TICKET COUNTS
+   ========================================== */
+
+.right {
+  text-align: right;
+}
+
+.count {
+  font-size: 30px;
+  font-weight: 900;
+  text-align: right;
+}
+
+.right small {
+  display: block;
+  color: #aeb8cf;
+  margin: 5px 0 0;
+}
+
+/* ==========================================
+   STATUS BADGES
+   ========================================== */
+
+.pill {
+  display: inline-block;
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+
+  background: #293550;
+  color: #d5e3ff;
+}
+
+/* AVAILABLE */
+
+.pill.ok {
+  background: #123f32;
+  color: #83f4bb;
+}
+
+/* LOW AVAILABILITY */
+
+.pill.warn {
+  background: #49321b;
+  color: #ffcc7a;
+}
+
+/* SOLD OUT */
+
+.pill.sold {
+  background: #51232a;
+  color: #ff9aa8;
+}
+
+/* COMING SOON */
+
+.pill.soon {
+  background: #17375b;
+  color: #8bc8ff;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+
+.foot {
+  font-size: 13px;
+  margin: 30px 0 60px;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVENESS
+   ========================================== */
+
+@media (max-width: 680px) {
+
+  header {
+    padding: 30px 0;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stats article {
+    padding: 16px 20px;
+  }
+
+  .stats strong {
+    font-size: 32px;
+  }
+
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    display: block;
+    padding: 18px;
+  }
+
+  .card h3 {
+    font-size: 19px;
+  }
+
+  .right {
+    text-align: left;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #2d3651;
+  }
+
+  .count {
+    text-align: left;
+    font-size: 27px;
+  }
+
+  .notice {
+    font-size: 14px;
+  }
+
+}
