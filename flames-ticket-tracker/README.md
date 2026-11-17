@@ -1,26 +1,21 @@
-# Guildford Flames Ticket Tracker — phase 1
+# Guildford Flames Ticket Tracker — Version 2
 
-## What's working
-- Netlify-ready responsive dashboard.
-- Netlify Function retrieves one publicly visible Spektrix area for Coventry Blaze, 22 Nov 2026.
-- Refreshes every five minutes while dashboard is open.
-- Clearly distinguishes partial area counts from verified game totals.
-- Handles upstream failures without falsely declaring sold out.
+## Changes
+- Uses the public Spektrix **instance-level** `/status?includeChildPlans=true` endpoint instead of a single seating area.
+- Displays `available` directly as the public game-level availability snapshot.
+- Handles failed requests without labelling a game sold out.
+- Refreshes every five minutes while open.
 
-## Deploy
-1. Extract ZIP to a folder.
-2. Push folder to a GitHub repository.
-3. In Netlify choose **Add new project → Import an existing project** and select the repository.
-4. Publish directory: `.`; functions directory: `netlify/functions`; no build command needed.
-5. Deploy, then visit `/api/availability` to test the backend and the site root for the dashboard.
+## Important limitation
+**Only Coventry Blaze on 22 November 2026 is configured.** No other instance IDs have been verified. Do not describe this as a full-season tracker yet. Add verified fixtures to `fixtures.json` using the same fields: `id`, `opponent`, `date` (ISO timestamp), `instanceId`, `bookingUrl`. The backend then checks each configured fixture automatically. Public API availability may not include every ticket category; verify against the ticketing interface.
 
-**Important:** Netlify drag-and-drop static deployment will NOT build the serverless function. Use Git deployment or the Netlify CLI (`netlify deploy --build --prod`).
+## Updating the existing GitHub / Netlify site
+Your existing repository has `flames-ticket-tracker/` as its application folder and a root `netlify.toml` pointing to it. **Replace the contents of that existing application folder** with the contents of this ZIP, preserving the folder name. Do not upload this ZIP as a ZIP file into GitHub. Keep the existing root `netlify.toml` unchanged. Commit to `main` and check the new Netlify deployment.
 
-## Expand to all fixtures
-Edit `fixtures.json`. Add every upcoming fixture with its Spektrix instance ID, booking URL, and each unique area ID. Set `areasComplete: true` **only after** verifying all ticket-selling areas (including standing allocations) are covered, and that areas are not overlapping parent/child counts. Otherwise the dashboard intentionally labels the game total unknown. Fixture discovery is NOT automated in this prototype.
+## Test
+- Open `/api/availability` on your deployed Netlify domain and check `remaining` and `complete`.
+- Open the homepage and use Refresh now.
+- If the API fails, the UI will show unavailable, not zero.
 
-## Access and accuracy
-The API was shown responding in a Safari Private Window, but access from Netlify servers has not been verified. The dashboard does not bypass authentication or access controls. Respect the ticket provider's terms, request limits, and any restrictions. Only count `available` as currently bookable, not tickets sold. For public deployment, consider Netlify site access controls.
-
-## API response
-`GET /api/availability` returns JSON with per-game tracked area counts, `remaining` only when `areasComplete` is true and every request succeeded, and an `updatedAt` timestamp.
+## Security and reliability
+Use only public endpoints, respect Spektrix/Spectrum access policies and rate limits. The public response is an availability snapshot, not confirmed ticket sales. The dashboard does not require a password by default; apply access controls separately if it must be private.

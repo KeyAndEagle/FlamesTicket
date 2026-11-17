@@ -9,9 +9,9 @@ async function refresh(){el('refresh').disabled=true;try{
  el('games').replaceChildren();if(!data.games.length)el('games').textContent='No upcoming fixtures configured.';
  for(const g of data.games){const card=document.createElement('article');card.className='card';
  const left=document.createElement('div');const date=document.createElement('p');date.textContent=fmt(g.date);const title=document.createElement('h3');title.textContent='Guildford Flames v '+g.opponent;
- const badge=document.createElement('span');badge.className='pill '+(g.complete?(g.remaining===0?'sold':g.remaining<50?'warn':'ok'):'');badge.textContent=g.complete?(g.remaining===0?'SOLD OUT':g.remaining<50?'LOW AVAILABILITY':'AVAILABLE'):'PARTIAL DATA';
- left.append(date,title,badge);const right=document.createElement('div');right.className='right';const count=document.createElement('div');count.className='count';count.textContent=g.complete?`${g.remaining} left`:'Total unknown';const detail=document.createElement('small');
- detail.textContent=g.areas.some(a=>a.error)?'Live data unavailable for one or more areas':g.complete?`${g.trackedAreas} areas checked`:`${g.trackedAvailable??'—'} available in ${g.trackedAreas} tracked area(s) only`;
+ const badge=document.createElement('span');badge.className='pill '+(g.complete?(g.remaining===0?'sold':g.remaining<50?'warn':'ok'):'');badge.textContent=g.complete?(g.remaining===0?'SOLD OUT':g.remaining<50?'LOW AVAILABILITY':'AVAILABLE'):'DATA UNAVAILABLE';
+ left.append(date,title,badge);const right=document.createElement('div');right.className='right';const count=document.createElement('div');count.className='count';count.textContent=g.complete?`${g.remaining} left`:'Availability unknown';const detail=document.createElement('small');
+ detail.textContent=g.complete?`Public instance availability${g.capacity!==null?' · capacity '+g.capacity:''}`:`Live check failed: ${g.error||'Unknown error'}`;
  const link=document.createElement('a');link.className='link';link.href=g.bookingUrl;link.target='_blank';link.rel='noopener noreferrer';link.textContent='View tickets ↗';right.append(count,detail,link);card.append(left,right);el('games').append(card);
  }
  }catch(e){el('updated').textContent='Update failed: '+e.message+' — try again shortly.';}finally{el('refresh').disabled=false;}}

@@ -2,6 +2,6 @@
 <header><div class="wrap"><p class="eyebrow">GUILDFORD FLAMES • INTERNAL DASHBOARD</p><h1>🔥 Ticket Tracker</h1><p>Public booking availability • Refreshes every five minutes</p></div></header>
 <main class="wrap"><section class="stats"><article><span>Upcoming games configured</span><strong id="gameCount">—</strong></article><article><span>Verified sold out</span><strong id="soldOut">—</strong></article><article><span>Low availability (&lt; 50)</span><strong id="lowCount">—</strong></article></section>
 <div class="toolbar"><div><h2>Upcoming home games</h2><p id="updated">Loading live availability…</p></div><button id="refresh">↻ Refresh now</button></div>
-<p class="notice">⚠️ Only one seating area of the Coventry fixture is configured as a working API test. Its count is <b>not the whole-game total</b>. More fixture IDs and seating areas must be discovered before full-season totals can be shown.</p>
+<p class="notice">⚠️ Version 2 reads the <b>game-level availability</b> returned by Spektrix. Only Coventry Blaze is configured so far; additional fixture instance IDs are still needed for the rest of the season.</p>
 <div id="games" class="games" aria-live="polite"></div><p class="foot">“Unavailable” does not mean sold. Counts are public availability snapshots, not official sales figures. Standing allocations may need separate verification.</p></main>
 <script src="script.js" defer></script></body></html>
