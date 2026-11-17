@@ -1,5 +1,4 @@
 const BASE = 'https://bookings.guildfordspectrum.co.uk';
-
 const EVENT_ID = '29001';
 
 const headers = {
@@ -9,10 +8,10 @@ const headers = {
 
 export default async () => {
   try {
-    const eventUrl =
+    const url =
       `${BASE}/guildfordspectrum/website/EventDetails.aspx?EventId=${EVENT_ID}&resize=true`;
 
-    const response = await fetch(eventUrl, {
+    const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
         Accept: 'text/html'
@@ -22,38 +21,56 @@ export default async () => {
 
     const html = await response.text();
 
-    // Find performance IDs in the event details page
-    const instanceIds = [
-      ...new Set(
-        [...html.matchAll(/EventInstanceId=(\d+)/gi)]
-          .map(match => match[1])
-      )
-    ];
+    // Find form opening tags
+    const forms = [
+      ...html.matchAll(/<form\b[^>]*>/gi)
+    ].map(match => match[0]);
 
-    // Find references to booking pages and instance IDs
-    const bookingReferences = [
+    // Find input fields
+    const inputs = [
+      ...html.matchAll(/<input\b[^>]*>/gi)
+    ].map(match => match[0]).slice(0, 30);
+
+    // Find booking button HTML and surrounding code
+    const buttonPosition = html.indexOf('BookNowButton');
+
+    const buttonContext = buttonPosition >= 0
+      ? html.slice(
+          Math.max(0, buttonPosition - 1000),
+          Math.min(html.length, buttonPosition + 1500)
+        )
+      : null;
+
+    // Find JavaScript postback references
+    const postbacks = [
       ...new Set(
-        [...html.matchAll(
-          /(?:ChooseSeats\.aspx|EventInstanceId|instanceId|BookNowButton)[^"'<>]{0,150}/gi
-        )].map(match => match[0])
+        [...html.matchAll(/__doPostBack\([^)]*\)/gi)]
+          .map(match => match[0])
       )
     ].slice(0, 20);
 
-    // Return the results
+    // Find event and instance references
+    const references = [
+      ...new Set(
+        [...html.matchAll(
+          /(?:EventInstanceId|ChooseSeats|BookNowButton|__EVENTTARGET)[^"'<>]{0,150}/gi
+        )].map(match => match[0])
+      )
+    ].slice(0, 30);
+
     return new Response(
       JSON.stringify({
         success: response.ok,
         status: response.status,
         eventId: EVENT_ID,
         htmlLength: html.length,
-        instanceIds,
-        bookingReferences,
-        containsBookNow: html.includes('BookNowButton')
+        forms,
+        inputs,
+        buttonContext,
+        postbacks,
+        references
       }, null, 2),
-      {
-        status: 200,
-        headers
-      }
+      { headers }
     );
 
   } catch (error) {
