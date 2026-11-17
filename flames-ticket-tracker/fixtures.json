@@ -1,0 +1,13 @@
+[
+  {
+    "id": "coventry-2026-11-22",
+    "opponent": "Coventry Blaze",
+    "date": "2026-11-22T18:00:00+00:00",
+    "instanceId": "877601ACBVBBDDKMJRCLSKCVJDVGLDSKP",
+    "bookingUrl": "https://www.guildfordspectrum.co.uk/ice-hockey-events/",
+    "areas": [
+      {"id":"1603ADVSBNGRGGMPPTJRNJHTCVRKLHQCH","name":"Guildford Spectrum – Flames"}
+    ],
+    "areasComplete": false
+  }
+]
