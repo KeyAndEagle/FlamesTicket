@@ -1,8 +1,6 @@
 const BASE =
   'https://bookings.guildfordspectrum.co.uk/guildfordspectrum/api/v3';
 
-const EVENT_ID = '29001ALLPBTHVNSHLVJMKCMRSHGJJGQBT';
-
 const headers = {
   'content-type': 'application/json; charset=utf-8',
   'cache-control': 'no-store'
@@ -10,63 +8,94 @@ const headers = {
 
 export default async () => {
   try {
-    const url = `${BASE}/events/${EVENT_ID}/instances`;
+
+    // Retrieve events from the Spektrix API
+    const url = `${BASE}/events`;
 
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json'
       },
-      signal: AbortSignal.timeout(10000)
+      signal: AbortSignal.timeout(15000)
     });
 
     const raw = await response.text();
 
+    // Report API errors
     if (!response.ok) {
       return new Response(
         JSON.stringify({
           success: false,
           status: response.status,
-          eventId: EVENT_ID,
           error: raw.slice(0, 500)
         }, null, 2),
-        { headers }
+        {
+          status: 200,
+          headers
+        }
       );
     }
 
     const data = JSON.parse(raw);
 
-    const instances = Array.isArray(data)
-      ? data.map(instance => ({
-          id: instance.id,
-          start: instance.start,
-          startUtc: instance.startUtc,
-          isOnSale: instance.isOnSale,
-          cancelled: instance.cancelled,
-          planId: instance.planId,
-          eventId: instance.event?.id
-        }))
-      : [];
+    // Check the response structure
+    const allEvents = Array.isArray(data)
+      ? data
+      : Array.isArray(data.events)
+        ? data.events
+        : [];
 
-    const fullInstanceIds = instances
-      .map(instance => instance.id)
-      .filter(id =>
-        typeof id === 'string' &&
-        id.length > 15
-      );
+    // Find Guildford Flames events
+    const flamesEvents = allEvents
+      .filter(event => {
+        const name = String(
+          event.name ||
+          event.title ||
+          event.eventName ||
+          ''
+        );
+
+        return name.toLowerCase().includes('guildford flames');
+      })
+      .map(event => ({
+        id: event.id,
+        name: event.name || event.title || event.eventName,
+        description: event.description || null,
+        firstInstance: event.firstInstance || null,
+        lastInstance: event.lastInstance || null
+      }));
+
+    // Show a sample of other events
+    const sampleEvents = allEvents
+      .slice(0, 5)
+      .map(event => ({
+        id: event.id,
+        name: event.name || event.title || event.eventName
+      }));
 
     return new Response(
       JSON.stringify({
         success: true,
         status: response.status,
-        eventId: EVENT_ID,
-        totalInstances: instances.length,
-        fullInstanceIds,
-        instances
+        totalEvents: allEvents.length,
+        flamesEventsFound: flamesEvents.length,
+        flamesEvents,
+        sampleEvents,
+        responseType: Array.isArray(data)
+          ? 'array'
+          : typeof data,
+        responseKeys: Array.isArray(data)
+          ? []
+          : Object.keys(data)
       }, null, 2),
-      { headers }
+      {
+        status: 200,
+        headers
+      }
     );
 
   } catch (error) {
+
     return new Response(
       JSON.stringify({
         success: false,
@@ -77,6 +106,7 @@ export default async () => {
         headers
       }
     );
+
   }
 };
 
