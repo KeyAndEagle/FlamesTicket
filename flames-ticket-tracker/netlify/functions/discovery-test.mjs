@@ -1,4 +1,6 @@
-const URL = 'https://bookings.guildfordspectrum.co.uk/guildfordspectrum/website/EventList.aspx?All=true&Attribute_Genre=Ice%20Hockey&SortBy=date&Stylesheet=spektrix.css&resize=true';
+const BASE = 'https://bookings.guildfordspectrum.co.uk';
+
+const EVENT_ID = '29001';
 
 const headers = {
   'content-type': 'application/json; charset=utf-8',
@@ -7,7 +9,10 @@ const headers = {
 
 export default async () => {
   try {
-    const response = await fetch(URL, {
+    const eventUrl =
+      `${BASE}/guildfordspectrum/website/EventDetails.aspx?EventId=${EVENT_ID}&resize=true`;
+
+    const response = await fetch(eventUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
         Accept: 'text/html'
@@ -17,43 +22,33 @@ export default async () => {
 
     const html = await response.text();
 
-    // Find Spektrix Event IDs
-    const eventIds = [
+    // Find performance IDs in the event details page
+    const instanceIds = [
       ...new Set(
-        [...html.matchAll(/EventId(?:=|%3D|&#61;)(\d+)/gi)]
+        [...html.matchAll(/EventInstanceId=(\d+)/gi)]
           .map(match => match[1])
       )
     ];
 
-    // Find booking-related links
-    const bookingLinks = [
+    // Find references to booking pages and instance IDs
+    const bookingReferences = [
       ...new Set(
         [...html.matchAll(
-          /(?:href|src)=["']([^"']*(?:spektrix|bookings\.guildfordspectrum|EventDetails|ice-hockey)[^"']*)["']/gi
-        )].map(match => match[1])
+          /(?:ChooseSeats\.aspx|EventInstanceId|instanceId|BookNowButton)[^"'<>]{0,150}/gi
+        )].map(match => match[0])
       )
-    ].slice(0, 30);
+    ].slice(0, 20);
 
-    // Find mentions of Spektrix in the HTML
-    const spektrixMentions = [
-      ...html.matchAll(/spektrix/gi)
-    ].length;
-
-    // Find mentions of booking-related terms
-    const bookingMentions = [
-      ...html.matchAll(/booking/gi)
-    ].length;
-
+    // Return the results
     return new Response(
       JSON.stringify({
         success: response.ok,
         status: response.status,
+        eventId: EVENT_ID,
         htmlLength: html.length,
-        eventIds,
-        bookingLinks,
-        spektrixMentions,
-        bookingMentions,
-        sample: html.slice(0, 300)
+        instanceIds,
+        bookingReferences,
+        containsBookNow: html.includes('BookNowButton')
       }, null, 2),
       {
         status: 200,
@@ -66,7 +61,7 @@ export default async () => {
       JSON.stringify({
         success: false,
         error: String(error.message || error)
-      }),
+      }, null, 2),
       {
         status: 500,
         headers
